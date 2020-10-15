@@ -42,11 +42,23 @@
 #include "cy_pdl.h"
 #include "cyhal.h"
 #include "cybsp.h"
+#include "cy_retarget_io.h"
 
+/* FreeRTOS header file. */
+#include <FreeRTOS.h>
+#include <task.h>
+
+#include "CMD_TASK.h"
+
+/* This enables RTOS aware debugging. */
+volatile int uxTopUsedPriority;
 
 int main(void)
 {
     cy_rslt_t result;
+
+    /* This enables RTOS aware debugging in OpenOCD. */
+    uxTopUsedPriority = configMAX_PRIORITIES - 1;
 
     /* Initialize the device and board peripherals */
     result = cybsp_init() ;
@@ -55,11 +67,34 @@ int main(void)
         CY_ASSERT(0);
     }
 
+    /* To avoid compiler warnings. */
+    (void) result;
+
     __enable_irq();
 
-    for (;;)
-    {
-    }
+    /* Initialize retarget-io to use the debug UART port. */
+    cy_retarget_io_init(CYBSP_DEBUG_UART_TX, CYBSP_DEBUG_UART_RX,
+                        CY_RETARGET_IO_BAUDRATE);
+
+    /* \x1b[2J\x1b[;H - ANSI ESC sequence to clear screen. */
+    printf("\x1b[2J\x1b[;H");
+    printf("============================================================\n");
+    printf("              MTB TEST COMMAND CONSOLE\n");
+    printf("============================================================\n\n");
+
+    /* Create the tasks. */
+    xTaskCreate(command_task, "command task", TASK_STACK_SIZE, NULL, TASK_PRIORITY, NULL);
+
+    /* Start the FreeRTOS scheduler. */
+    vTaskStartScheduler();
+
+    /* Should never get here. */
+    CY_ASSERT(0);
+
+//    for (;;)
+//    {
+//    }
+
 }
 
 /* [] END OF FILE */
