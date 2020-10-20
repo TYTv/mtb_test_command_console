@@ -30,8 +30,10 @@ guide
 
 4. quick panel -> launches -> generate launches for mtb_test_command_console
 
-5. open conn_wifi.h file and modify wifi_ssid / wifi_password
+5. file -> import -> projects from folder or archive -> next -> import source: your workspace forder path\mtb_shared -> finish
 
-6. plug in usb
+6. open conn_wifi.h file and modify wifi_ssid / wifi_password
 
-7. quick panel -> launches -> mtb_test_command_console program (kitprog3_miniprog4)
+7. plug in usb
+
+8. quick panel -> launches -> mtb_test_command_console program (kitprog3_miniprog4)
